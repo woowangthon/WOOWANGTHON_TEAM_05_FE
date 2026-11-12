@@ -1,0 +1,9 @@
+{
+  "name": "settle-in-fe",
+  "version": "0.1.0",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": { "dev": "next dev", "build": "next build --webpack", "start": "next start", "typecheck": "tsc --noEmit", "test": "node --test tests/*.test.mjs" },
+  "dependencies": { "next": "16.4.6", "react": "19.3.1", "react-dom": "19.3.1" },
+  "devDependencies": { "typescript": "5.9.3", "@types/node": "^24.0.0", "@types/react": "19.3.0", "@types/react-dom": "19.3.0" }
+}
