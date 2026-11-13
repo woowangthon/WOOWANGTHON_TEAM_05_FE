@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildPlan, interpretDemo } from '@/lib/demo.mjs';
+import { buildGemmaPlan, GemmaError } from '@/lib/gemma.server.mjs';
 export const runtime = 'nodejs';
+export const maxDuration = 90;
 
 export async function POST(request: NextRequest) {
   let body;
@@ -19,8 +21,9 @@ export async function POST(request: NextRequest) {
     } catch { return NextResponse.json({ detail: '계획 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.' }, { status: 502 }); }
   }
   try {
+    if (process.env.GEMINI_API_KEY) return NextResponse.json(await buildGemmaPlan(body));
     const edit = body.message !== undefined ? interpretDemo(body.message, body.profile) : null;
     const plan = buildPlan(edit ? edit.profile : body.profile);
     return NextResponse.json({ ...plan, changes: edit?.changes ?? {} });
-  } catch (e) { return NextResponse.json({ detail: e instanceof Error ? e.message : '조건을 확인해 주세요.' }, { status: 422 }); }
+  } catch (e) { return NextResponse.json({ detail: e instanceof Error ? e.message : '조건을 확인해 주세요.' }, { status: e instanceof GemmaError ? 503 : 422 }); }
 }
