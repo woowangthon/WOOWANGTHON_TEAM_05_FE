@@ -16,12 +16,14 @@ test('filter budgets and commutes, empty state, and sort after revision', () => 
   assert.equal(edit.profile.max_commute, 60); assert.equal(buildPlan(edit.profile).options[0].id, 'cda-redfern');
   assert.ok(buildPlan({ ...defaults, max_commute: 20 }).options.every(x => x.commute === null || x.commute <= 20));
 });
-test('unknown commute and excluded utilities stay explicit for studio candidates', () => {
+test('unknown commute stays explicit and sourced included bills are not charged twice', () => {
   const plan = buildPlan({...defaults, housing_type:'studio', monthly_budget:10000, max_commute:1});
   assert.equal(plan.options.length, 2);
   for (const h of plan.options) {
     assert.equal(h.commute, null); assert.equal(h.commute_verified, false);
-    assert.equal(h.utilities, null); assert.ok(h.monthly_missing.includes('공과금'));
+    assert.equal(h.utilities, 0); assert.ok(!h.monthly_missing.includes('공과금'));
+    assert.equal(h.initial_reference, h.weekly_rent * 6);
+    assert.equal(h.initial, 0); assert.ok(h.initial_missing.includes('보증금'));
   }
 });
 test('reject invalid inputs and unsupported demo instructions', () => {
